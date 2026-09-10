@@ -1,6 +1,65 @@
 # Icequake_ML
 
-This repository contains a full end-to-end pipeline for training seismic phase detection ML models on icequake data. Starting from raw QuakeML catalog files and `.m` waveform archives, the pipeline curates a SeisBench-compatible dataset and trains a PhaseNet model to identify P and S wave arrivals.
+> **Start here (handoff orientation, 2026-09-10).**
+>
+> This repository holds **two distinct things**. Know which one you are looking at.
+>
+> **1. `METHODS.md` + `full_catalog_pipeline/` — the production research pipeline.**
+> This is where the science is: detection through association, double-difference relocation,
+> depth-resolvability testing, ocean-tide modulation, and the GPS tidal response at Thwaites
+> Glacier. Read **[`METHODS.md`](METHODS.md)** first, then
+> **[`full_catalog_pipeline/README.md`](full_catalog_pipeline/README.md)** for the script map.
+>
+> **Writing a paper?** `METHODS.md` is the internal record — it carries `[VERIFY]` flags, caveat
+> boxes and open items, and is not manuscript prose. Paper-facing versions live in `docs/`, which
+> is **deliberately not tracked** (manuscript text belongs in the writing workflow, and `.docx` is
+> an opaque binary git cannot diff):
+>
+> | file | what it is |
+> |---|---|
+> | `docs/METHODS_paper.md` / `.docx` | paper-ready Methods, past tense, no repo internals |
+> | `docs/METHODS_summary.md` / `.docx` | one-paragraph, two-sentence and one-sentence summaries, a pull-quote number table, and what the summaries omit and why |
+> | `docs/METHODS.docx` | Word conversion of `METHODS.md` itself |
+> | `docs/superseded/` | the 2026-08-11 draft, with a note on why its §7 is wrong |
+>
+> If `docs/` is absent from your clone, that is expected. Regenerate the `.docx` from tracked
+> sources with `pip install pypandoc-binary` and:
+>
+> ```bash
+> python -c "import pypandoc; pypandoc.convert_file('METHODS.md','docx', \
+>     outputfile='docs/METHODS.docx', extra_args=['--from=gfm+pipe_tables','--toc'])"
+> ```
+>
+> The `.md` files in `docs/` were written from `METHODS.md` by hand and are not auto-generated —
+> ask Jake for a copy.
+> Curated results are committed in `full_catalog_pipeline/figures/` and `.../tables/`.
+>
+> **2. The numbered scripts `01_`–`11_` at the repository root — the original tutorial pipeline.**
+> A self-contained, well-commented walkthrough of building a SeisBench dataset and training a
+> PhaseNet model from QuakeML + `.m` archives, with an `_explained.ipynb` notebook per step. Good
+> for onboarding; **superseded for production** by `full_catalog_pipeline/01_dataset/` and
+> `.../02_picker/`, which handle the full multi-year archive.
+>
+> **Three things that will bite you if you skip them:**
+> - **Run everything from this directory** (the repository root), never from inside a stage
+>   directory. Data paths inside the scripts are relative to here.
+> - **The generated data tree is ~31 GB and is git-ignored** (`full_catalog_pipeline/artifacts/`),
+>   as are the external datasets (`CATS2008_v2023.nc` 1.7 GB, `gps_data/`). See `.gitignore`;
+>   METHODS.md §9 and the pipeline README say where to obtain them.
+> - **Relocation depths are not resolved.** Epicentres and map-view structure are robust; depth is
+>   not. METHODS.md §7.4 explains why, quantitatively. Do not interpret depth structure.
+>
+> Open items are listed at the end of METHODS.md, ordered by how much they block.
+> Documents in `docs/superseded/` are kept for provenance only — do not cite from them.
+
+---
+
+## The original tutorial pipeline
+
+This section documents the root-level `01_`–`11_` scripts: an end-to-end pipeline for training
+seismic phase detection ML models on icequake data. Starting from raw QuakeML catalog files and
+`.m` waveform archives, it curates a SeisBench-compatible dataset and trains a PhaseNet model to
+identify P and S wave arrivals.
 
 ## Pipeline Overview
 

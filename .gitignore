@@ -1,0 +1,65 @@
+# ---------------------------------------------------------------------------
+# Icequake_ML .gitignore
+#
+# The repository tracks CODE, DOCUMENTATION and a curated set of RESULTS
+# (full_catalog_pipeline/figures/ and full_catalog_pipeline/tables/). It does
+# NOT track the generated data tree, which is ~31 GB, nor the external
+# datasets, which are large and separately archived.
+#
+# If you need to regenerate anything, see full_catalog_pipeline/README.md for
+# which script produces which artifact.
+# ---------------------------------------------------------------------------
+
+# --- generated data tree (~31 GB): waveform windows, per-run hypoDD trees,
+#     per-cluster diagnostics, 883 figures, 372 CSVs -------------------------
+full_catalog_pipeline/artifacts/
+# ...but keep the curated handoff results, which live outside artifacts/:
+!full_catalog_pipeline/figures/
+!full_catalog_pipeline/tables/
+
+# --- external datasets: download separately, see METHODS.md §2 and §9 -------
+# CATS2008_v2023.nc: 1.7 GB ocean tide model, USAP-DC dataset 601772 (CC BY 4.0)
+CATS2008_v2023.nc
+# gps_data/: processed GPS, from jakewalter.mynetgear.com:~/gps/
+gps_data/
+# easyquake_project/: 97 MB easyQuake working tree
+easyquake_project/
+
+# --- per-run training outputs from the SNR ablation (§3): metadata tables up to
+#     24 MB each, plus their model checkpoints. Regenerate with 01_dataset/ + 02_picker/.
+full_catalog_pipeline/output/
+full_catalog_pipeline/output_[A-E]/
+full_catalog_pipeline/checkpoints/
+full_catalog_pipeline/checkpoints_[A-E]/
+full_catalog_pipeline/rpnet_model/
+
+# --- ML training data and model weights ------------------------------------
+final_curated_seisbench_data/waveforms.hdf5
+*.pth
+*.h5
+*.hdf5
+
+# NOTE: full_catalog_pipeline/vels1d/ (28 KB, the MEASURED reflection velocity profile) IS
+# tracked deliberately — vels1d_model.py reads it and the whole relocation stage depends on it.
+
+# --- manuscript drafts and their Word conversions --------------------------
+# docs/ holds paper-facing prose (METHODS_paper.md, METHODS_summary.md), the .docx
+# conversions, and superseded drafts. Deliberately NOT tracked: manuscript text belongs in
+# whatever the writing workflow is (Word/Overleaf), not versioned here, and .docx is an opaque
+# binary that git cannot diff. The internal record METHODS.md at the repository root IS
+# tracked and is the source these are generated from:
+#     python -c "import pypandoc; pypandoc.convert_file('METHODS.md','docx',
+#         outputfile='docs/METHODS.docx', extra_args=['--from=gfm+pipe_tables','--toc'])"
+docs/
+
+# --- scratch, logs, caches -------------------------------------------------
+# hypoDD experimental reruns (catalog_paths.scratch_dir); trimmed inputs + raw hypoDD
+# output, regenerable by rerunning the script that made them.
+full_catalog_pipeline/scratch/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+*.log
+hypoDD.log
+inspect_raw_probs.out
